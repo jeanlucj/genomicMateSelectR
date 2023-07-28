@@ -129,12 +129,14 @@ makeTrialTypeVar<-function(indata){
 #' @export
 renameAndSelectCols<-function(traitabbrevs,indata,
                               customColsToKeep=NULL){
+  metadataCols <- c("studyYear","programName","locationName","studyName",
+                    "studyDesign","plotWidth","plotLength","fieldSize",
+                    "plantingDate","harvestDate","germplasmName",
+                    "observationUnitDbId","replicate","blockNumber",
+                    "plotNumber","rowNumber","colNumber","entryType",
+                    "trialType","plantsPerPlot","numberBlocks","numberReps")
   outdata<-indata %>%
-    select(any_of(c("studyYear","programName","locationName","studyName","studyDesign",
-                    "plotWidth","plotLength","fieldSize","plantingDate","harvestDate",
-                    "germplasmName","observationUnitDbId",
-                    "replicate","blockNumber","plotNumber","rowNumber","colNumber","entryType",
-                    "trialType","plantsPerPlot","numberBlocks","numberReps")),
+    select(any_of(metadataCols),
            any_of(customColsToKeep),
            any_of(traitabbrevs$TraitName)) %>% ungroup() %>%
     mutate(across(any_of(traitabbrevs$TraitName), as.numeric)) %>% ungroup() %>%
@@ -294,11 +296,13 @@ detectExptDesigns<-function(indata){
 #' @return
 #' @export
 nestDesignsDetectedByTraits<-function(indata,traits){
+  metadataCols <- c("programName","locationName","studyYear","TrialType",
+                    "studyName","CompleteBlocks","IncompleteBlocks",
+                    "yearInLoc","trialInLocYr","repInTrial","blockInRep",
+                    "observationUnitDbId","germplasmName",
+                    "FullSampleName","GID","PropNOHAV")
   indata %<>%
-    select(programName,locationName,studyYear,TrialType,studyName,
-           CompleteBlocks,IncompleteBlocks,
-           yearInLoc,trialInLocYr,repInTrial,blockInRep,observationUnitDbId,
-           germplasmName,FullSampleName,GID,all_of(traits),PropNOHAV) %>%
+    select(any_of(metadataCols),all_of(traits)) %>%
     mutate(IncompleteBlocks=ifelse(IncompleteBlocks==TRUE,"Yes","No"),
            CompleteBlocks=ifelse(CompleteBlocks==TRUE,"Yes","No")) %>%
     pivot_longer(cols = all_of(traits), names_to = "Trait", values_to = "Value") %>%
